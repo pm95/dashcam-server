@@ -20,10 +20,11 @@ def healthcheck():
 @cross_origin()
 def get_user_data():
     user_data = {
-        "firstName": "Pietro",
-        "lastName": "Test",
-        "carMake": "Toyota",
-        "carModel": "4Runner",
+        "firstName": "ServerFirstName",
+        "lastName": "ServerLastName",
+        "email": "user@serverDomain.com",
+        "carMake": "ToyotaServer",
+        "carModel": "4RunnerServer",
         "plan": "Free",
         "capacity": "100 GB",
         "available": "100 GB"
@@ -38,6 +39,7 @@ def post_video():
     if not os.path.isdir(target):
         os.mkdir(target)
     vid_file = request.files['file']
+    print(request)
     filename = secure_filename(vid_file.filename)
     destination = "/".join([target, filename])
     vid_file.save(destination)
