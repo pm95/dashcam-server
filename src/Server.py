@@ -1,8 +1,15 @@
-import os
-import time
 from flask import Flask, request, session, jsonify
 from werkzeug.utils import secure_filename
 from flask_cors import CORS, cross_origin
+
+import os
+import time
+
+import sqlite3
+
+import CONFIG
+
+from pprint import pprint
 
 
 UPLOAD_FOLDER = '../assets/'
@@ -16,7 +23,33 @@ def healthcheck():
     return "Server is Healthy"
 
 
-@app.route('/api/getuserdata', methods=['GET'])
+@app.route('/api/createuser', methods=['POST'])
+@cross_origin()
+def create_user():
+    response = ""
+    data = request.get_json()
+    conn = sqlite3.connect(CONFIG.DB_PATH)
+    c = conn.cursor()
+    args = (data["email"],)
+    c.execute("SELECT * FROM USERS WHERE email=?", args)
+    match = c.fetchone()
+
+    if not match:
+        email = data["email"]
+        firstName = data["firstName"]
+        lastName = data["lastName"]
+        plan = data["plan"]
+        args = (firstName, lastName, email, plan,)
+        c.execute(
+            "INSERT INTO USERS (firstName, lastName, email, plan) VALUES (?, ?, ?, ?)", args)
+        conn.commit()
+        c.close()
+        return "user created"
+    c.close()
+    return "user exists"
+
+
+@app.route('/api/fetchuser', methods=['GET', 'POST'])
 @cross_origin()
 def get_user_data():
     user_data = {
