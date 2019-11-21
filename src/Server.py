@@ -23,7 +23,28 @@ def healthcheck():
     return "Server is Healthy"
 
 
-@app.route('/api/createuser', methods=['POST'])
+# new routes
+@app.route('/api/login', methods=['GET'])
+@cross_origin()
+def user_login():
+    data = request.get_json()
+    conn = sqlite3.connect(CONFIG.DB_PATH)
+    c = conn.cursor()
+    args = (data["email"],)
+    c.execute("SELECT * FROM USERS WHERE email=?", args)
+    match = c.fetchone()
+    print(match)
+    if match:
+        return jsonify({
+            "firstName": match[0],
+            "lastName": match[1],
+            "email": match[2],
+            "plan": match[3],
+        })
+    return jsonify("user not found")
+
+
+@app.route('/api/signup', methods=['POST'])
 @cross_origin()
 def create_user():
     response = ""
@@ -43,41 +64,41 @@ def create_user():
         c.execute(
             "INSERT INTO USERS (firstName, lastName, email, plan) VALUES (?, ?, ?, ?)", args)
         conn.commit()
-        c.close()
-        return "user created"
+        response = "user created"
+    else:
+        response = "user exists"
     c.close()
-    return "user exists"
+    return response
 
 
-@app.route('/api/fetchuser', methods=['GET', 'POST'])
-@cross_origin()
-def get_user_data():
-    user_data = {
-        "firstName": "ServerFirstName",
-        "lastName": "ServerLastName",
-        "email": "user@serverDomain.com",
-        "carMake": "ToyotaServer",
-        "carModel": "4RunnerServer",
-        "plan": "Free",
-        "capacity": "100 GB",
-        "available": "100 GB"
-    }
-    return jsonify(user_data)
-
-
+# routes in progress
 @app.route('/api/submit', methods=['POST'])
 @cross_origin()
 def post_video():
-    target = os.path.join(UPLOAD_FOLDER, './')
-    if not os.path.isdir(target):
-        os.mkdir(target)
-    vid_file = request.files['file']
-    print(request)
-    filename = secure_filename(vid_file.filename)
-    destination = "/".join([target, filename])
-    vid_file.save(destination)
-    session['uploadFilePath'] = destination
-    return "Video uploaded successfully"
+    # target = os.path.join(UPLOAD_FOLDER, './')
+    # if not os.path.isdir(target):
+    #     os.mkdir(target)
+    # vid_file = request.files['file']
+    # filename = secure_filename(vid_file.filename)
+    # destination = "/".join([target, filename])
+    # vid_file.save(destination)
+    # session['uploadFilePath'] = destination
+    # return "Video uploaded successfully"
+
+    # old routes
+
+
+@app.route('/api/updateuser', methods=['POST'])
+@cross_origin()
+def get_user_data():
+    data = request.get_json()
+    conn = sqlite3.connect(CONFIG.DB_PATH)
+    c = conn.cursor()
+    args = (data["email"],)
+    c.execute("SELECT * FROM USERS WHERE email=?", args)
+    match = c.fetchone()
+    print(match)
+    return "updateuser end hit"
 
 
 app.secret_key = os.urandom(24)
