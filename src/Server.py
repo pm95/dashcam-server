@@ -54,7 +54,8 @@ def user_login():
 @cross_origin()
 def create_user():
     response = ""
-    data = request.get_json()
+    data = request.get_json(force=True)
+    print(data)
     conn = sqlite3.connect(CONFIG.DB_PATH)
     c = conn.cursor()
     args = (data["email"],)
@@ -74,6 +75,7 @@ def create_user():
     else:
         response = "user exists"
     c.close()
+    print(response)
     return response
 
 
