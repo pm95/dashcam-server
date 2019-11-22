@@ -1,4 +1,4 @@
-from flask import Flask, request, session, jsonify
+from flask import Flask, request, session, jsonify, make_response, send_file
 from werkzeug.utils import secure_filename
 from flask_cors import CORS, cross_origin
 
@@ -138,6 +138,41 @@ def get_user_data():
         return "Updated your information"
     except:
         return "Could not update your information right now"
+
+
+# routes in progress right now
+@app.route('/api/history', methods=['POST'])
+@cross_origin()
+def get_user_history():
+    email = (request.data).decode('utf-8')
+    print(email)
+    conn = sqlite3.connect(CONFIG.DB_PATH)
+    c = conn.cursor()
+    args = (
+        email,
+    )
+    c.execute(
+        "SELECT videoName FROM VIDEOS WHERE email=?",
+        args
+    )
+    matches = [tup[0] for tup in c.fetchall()]
+    c.close()
+
+    if matches != []:
+        return jsonify({
+            "videos": matches
+        })
+    return jsonify({
+        "videos": []
+    })
+
+
+@app.route('/api/getvideo', methods=['POST'])
+@cross_origin()
+def get_video():
+    vid_name = (request.data).decode('utf-8')
+    vid_path = os.path.join(UPLOAD_FOLDER, vid_name)
+    return send_file(vid_path)
 
 
 app.secret_key = os.urandom(24)
