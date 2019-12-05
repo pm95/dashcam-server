@@ -158,12 +158,8 @@ def get_user_history():
     matches = [tup[0] for tup in c.fetchall()]
     c.close()
 
-    if matches != []:
-        return jsonify({
-            "videos": matches
-        })
     return jsonify({
-        "videos": []
+        "videos": matches
     })
 
 
@@ -173,6 +169,14 @@ def get_video():
     vid_name = (request.data).decode('utf-8')
     vid_path = os.path.join(UPLOAD_FOLDER, vid_name)
     return send_file(vid_path)
+
+
+@app.route('/api/deletevideo', methods=['POST'])
+@cross_origin()
+def delete_video():
+    vid_name = (request.data).decode('utf-8')
+
+    return "Deleted %s" % vid_name
 
 
 app.secret_key = os.urandom(24)
