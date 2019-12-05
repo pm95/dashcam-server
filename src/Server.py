@@ -18,9 +18,9 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
-@app.route('/healthcheck')
+@app.route('/')
 def healthcheck():
-    return "Server is Healthy"
+    return "SecureDashboard server is healthy"
 
 
 # new routes
