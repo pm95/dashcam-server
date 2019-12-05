@@ -175,8 +175,21 @@ def get_video():
 @cross_origin()
 def delete_video():
     vid_name = (request.data).decode('utf-8')
-
-    return "Deleted %s" % vid_name
+    try:
+        conn = sqlite3.connect(CONFIG.DB_PATH)
+        c = conn.cursor()
+        args = (
+            vid_name,
+        )
+        c.execute(
+            "DELETE FROM VIDEOS WHERE videoName=?;",
+            args
+        )
+        conn.commit()
+        c.close()
+        return "success"
+    except:
+        return "error"
 
 
 app.secret_key = os.urandom(24)
